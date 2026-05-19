@@ -1,20 +1,18 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from decimal import Decimal
+from django.shortcuts import render
 from .models import UserProfile, Transaction
-
-def home(request):
-    return render(request, 'home.html')
 
 
 
 
 def dashboard_view(request):
 
-    profile = request.user.userprofile
+    profile = UserProfile.objects.first()
+
+    if not profile:
+
+        return render(request, 'dashboard.html', {
+            'error': 'No users found'
+        })
 
     transactions = Transaction.objects.filter(
         sender=profile
@@ -26,7 +24,7 @@ def dashboard_view(request):
 
     context = {
         'profile': profile,
-        'transactions': transactions
+        'transactions': transactions,
     }
 
     return render(request, 'dashboard.html', context)
