@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Transfer Money 🔁</h2>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <input type="text" name="receiver" placeholder="Receiver username" required>
+    <input type="number" name="amount" placeholder="Amount" required>
+
+    <button type="submit">Send</button>
+</form>
+
+{% if error %}
+<p style="color:red;">{{ error }}</p>
+{% endif %}
+
+{% endblock %}

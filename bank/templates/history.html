@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="card">
+    <h2>Transaction History 📜</h2>
+
+    {% for t in transactions %}
+        <div style="padding:10px; border-bottom:1px solid #eee;">
+            <p>
+                {{ t.sender }} ➜ {{ t.receiver }}
+            </p>
+            <strong>${{ t.amount }}</strong>
+            <small style="color:gray;">{{ t.created_at }}</small>
+        </div>
+    {% empty %}
+        <p>No transactions yet.</p>
+    {% endfor %}
+</div>
+
+{% endblock %}
