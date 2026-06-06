@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="auth-wrap">
+
+    <div class="auth-left">
+        <h1>Create Your Account 🏦</h1>
+        <p>Join MyBank to securely manage your money, transfer funds instantly, and track every transaction.</p>
+    </div>
+
+    <div class="auth-card">
+        <h2>Create Account</h2>
+
+        {% if form.errors %}
+        <div class="alert alert-error">Please fix the errors below.</div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                <p style="color:#b91c1c; font-size:12px; margin-top:4px;">{{ field.errors.0 }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-primary btn-lg btn-full">Create Account</button>
+        </form>
+
+        <p class="auth-bottom">
+            Already have an account? <a href="{% url 'login' %}">Login</a>
+        </p>
+    </div>
+
+</section>
+{% endblock %}
