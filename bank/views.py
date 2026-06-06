@@ -7,16 +7,16 @@ from .models import UserProfile, Transaction
 
 
 def get_user_profile(user):
-    return get_object_or_404(UserProfile, user=user)
+    profile, created = UserProfile.objects.get_or_create(user=user)
+    return profile
 
 
 @login_required
 def dashboard_view(request):
     profile = get_user_profile(request.user)
 
-    recent_transactions = Transaction.objects.filter(
-        sender=profile
-    ).union(
+    recent_transactions = (
+        Transaction.objects.filter(sender=profile) |
         Transaction.objects.filter(receiver=profile)
     ).order_by('-created_at')[:5]
 
@@ -32,7 +32,7 @@ def add_money(request):
 
     if request.method == 'POST':
         try:
-            amount = Decimal(request.POST.get('amount', ''))
+            amount = Decimal(request.POST.get('amount', '0'))
         except InvalidOperation:
             return render(request, 'add_money.html', {
                 'balance': profile.balance,
@@ -64,7 +64,7 @@ def transfer_view(request):
         receiver_username = request.POST.get('receiver', '').strip()
 
         try:
-            amount = Decimal(request.POST.get('amount', ''))
+            amount = Decimal(request.POST.get('amount', '0'))
         except InvalidOperation:
             return render(request, 'transfer.html', {
                 'error': 'Invalid amount entered.',
@@ -114,18 +114,19 @@ def transfer_view(request):
 
         return redirect('dashboard')
 
-    return render(request, 'transfer.html', {'sender': sender})
+    return render(request, 'transfer.html', {
+        'sender': sender
+    })
 
 
 @login_required
 def transaction_history(request):
     profile = get_user_profile(request.user)
 
-    sent = Transaction.objects.filter(sender=profile)
-    received = Transaction.objects.filter(receiver=profile)
-
-    # Fixed: was using "-timestamp" which caused a crash (field is created_at)
-    transactions = sent.union(received).order_by('-created_at')
+    transactions = (
+        Transaction.objects.filter(sender=profile) |
+        Transaction.objects.filter(receiver=profile)
+    ).order_by('-created_at')
 
     return render(request, 'history.html', {
         'transactions': transactions,
